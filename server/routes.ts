@@ -24,6 +24,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Public routes
   
+  // DEBUG: Get all users (temporary for debugging)
+  app.get("/api/debug/users", async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      // Remove passwords before sending
+      const usersWithoutPasswords = users.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      res.json(usersWithoutPasswords);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Get all published news
   app.get("/api/news", async (req, res) => {
     try {
