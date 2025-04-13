@@ -152,12 +152,18 @@ export function setupAuth(app: Express) {
 
   // User login route
   app.post("/api/login", (req, res, next) => {
+    if (!req.body.email || !req.body.password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
     passport.authenticate('user-local', (err, user, info) => {
       if (err) return next(err);
-      if (!user) return res.status(401).json({ message: info.message || "Invalid credentials" });
+      if (!user) return res.status(401).json({ message: info.message || "Invalid email or password" });
       
-      req.login(user, (err) => {
-        if (err) return next(err);
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          return res.status(500).json({ message: "Error during login process" });
+        }
         
         // Remove password from response
         const { password, ...userWithoutPassword } = user;

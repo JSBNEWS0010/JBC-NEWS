@@ -113,22 +113,35 @@ export default function AuthForm() {
   });
 
   // Handle User Login
-  const onUserLogin = (data: LoginFormValues) => {
-    loginMutation.mutate(
-      { email: data.email, password: data.password },
-      {
-        onSuccess: (user) => {
-          // Redirect based on user type
-          if (user.userType === "admin") {
-            setLocation("/admin");
-          } else if (user.userType === "staff") {
-            setLocation("/staff");
-          } else {
-            setLocation("/user");
+  const onUserLogin = async (data: LoginFormValues) => {
+    try {
+      loginMutation.mutate(
+        { email: data.email, password: data.password },
+        {
+          onSuccess: (user) => {
+            // Redirect based on user type
+            if (user.userType === "admin") {
+              setLocation("/admin");
+            } else if (user.userType === "staff") {
+              setLocation("/staff");
+            } else {
+              setLocation("/user");
+            }
+          },
+          onError: (error) => {
+            loginForm.setError("root", {
+              type: "manual",
+              message: error.message || "Login failed. Please check your credentials."
+            });
           }
-        },
-      }
-    );
+        }
+      );
+    } catch (error) {
+      loginForm.setError("root", {
+        type: "manual",
+        message: "An unexpected error occurred. Please try again."
+      });
+    }
   };
 
   // Handle User Registration
