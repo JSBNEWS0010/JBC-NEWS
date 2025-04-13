@@ -57,39 +57,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get news item by ID
-  app.get("/api/news/:id", async (req, res) => {
-    try {
-      const newsId = parseInt(req.params.id);
-      if (isNaN(newsId)) {
-        return res.status(400).json({ message: "Invalid news ID" });
-      }
-      
-      const newsItem = await storage.getNews(newsId);
-      if (!newsItem || newsItem.status !== "published") {
-        return res.status(404).json({ message: "News not found" });
-      }
-      
-      // Check if this is premium content and user has access
-      if (newsItem.isPremium) {
-        const isPremium = req.isAuthenticated() && (req.user as any)?.isPremium;
-        if (!isPremium) {
-          // Send partial content for non-premium users
-          const { content, ...partialContent } = newsItem;
-          return res.json({
-            ...partialContent,
-            isPremiumContent: true,
-            content: "This is premium content. Subscribe to access the full article."
-          });
-        }
-      }
-      
-      res.json(newsItem);
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching news item" });
-    }
-  });
-
   // Get news by category
   app.get("/api/news/category/:category", async (req, res) => {
     try {
@@ -170,6 +137,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(news);
     } catch (error) {
       res.status(500).json({ message: "Error searching news" });
+    }
+  });
+
+  // Get news item by ID - Should be after all other /api/news/* routes
+  app.get("/api/news/:id", async (req, res) => {
+    try {
+      const newsId = parseInt(req.params.id);
+      if (isNaN(newsId)) {
+        return res.status(400).json({ message: "Invalid news ID" });
+      }
+      
+      const newsItem = await storage.getNews(newsId);
+      if (!newsItem || newsItem.status !== "published") {
+        return res.status(404).json({ message: "News not found" });
+      }
+      
+      // Check if this is premium content and user has access
+      if (newsItem.isPremium) {
+        const isPremium = req.isAuthenticated() && (req.user as any)?.isPremium;
+        if (!isPremium) {
+          // Send partial content for non-premium users
+          const { content, ...partialContent } = newsItem;
+          return res.json({
+            ...partialContent,
+            isPremiumContent: true,
+            content: "This is premium content. Subscribe to access the full article."
+          });
+        }
+      }
+      
+      res.json(newsItem);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching news item" });
     }
   });
 
