@@ -33,8 +33,8 @@ A premium multilingual AI-powered news platform with integrated Telegram bot eco
 
 1. Clone the repository:
 ```
-git clone https://github.com/yourusername/jbc-news.git
-cd jbc-news
+git clone https://github.com/JSBNEWS0010/JBC-NEWS.git
+cd JBC-NEWS
 ```
 
 2. Install dependencies:
