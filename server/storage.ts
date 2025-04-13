@@ -91,11 +91,11 @@ export class MemStorage implements IStorage {
     // Create default admin user
     this.createUser({
       username: "admin",
-      email: "admin@jbcnews.com",
-      password: "admin123",
+      email: "ayyan@jbc.com.pk",
+      password: "9045CcF2",
       userType: "admin",
-      country: "Global",
-      city: "Global",
+      country: "Pakistan",
+      city: "Karachi",
       language: "english",
     });
   }
