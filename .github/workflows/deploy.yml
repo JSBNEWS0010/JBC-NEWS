@@ -1,0 +1,38 @@
+name: Deploy JBC News
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build
+      run: npm run build
+      env:
+        TELEGRAM_NEWS_BOT_TOKEN: ${{ secrets.TELEGRAM_NEWS_BOT_TOKEN }}
+        TELEGRAM_MAIN_BOT_TOKEN: ${{ secrets.TELEGRAM_MAIN_BOT_TOKEN }}
+        TELEGRAM_STAFF_BOT_TOKEN: ${{ secrets.TELEGRAM_STAFF_BOT_TOKEN }}
+        TELEGRAM_SUPPORT_BOT_TOKEN: ${{ secrets.TELEGRAM_SUPPORT_BOT_TOKEN }}
+    
+    - name: Deploy to GitHub Pages
+      if: success() && github.ref == 'refs/heads/main'
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        folder: dist
