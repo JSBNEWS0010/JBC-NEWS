@@ -487,6 +487,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Telegram Bot Webhook Endpoints
+  // Main Bot - For registrations and user interaction
+  app.post("/api/telegram/webhook/main", async (req, res) => {
+    try {
+      // In a real implementation, this would validate the request is from Telegram
+      // and then process the update using the Telegram Bot API
+      const update = req.body;
+      console.log("Received update for Main bot:", JSON.stringify(update).substring(0, 100) + "...");
+      
+      // Process with the appropriate bot
+      // Here we would handle user commands, registrations, etc.
+      
+      res.sendStatus(200);
+    } catch (error) {
+      console.error("Error processing Main bot webhook:", error);
+      res.sendStatus(500);
+    }
+  });
+
+  // News Bot - For sending news updates
+  app.post("/api/telegram/webhook/news", async (req, res) => {
+    try {
+      const update = req.body;
+      console.log("Received update for News bot:", JSON.stringify(update).substring(0, 100) + "...");
+      
+      // Process news-related commands
+      // Here we would handle subscriptions to news categories, etc.
+      
+      res.sendStatus(200);
+    } catch (error) {
+      console.error("Error processing News bot webhook:", error);
+      res.sendStatus(500);
+    }
+  });
+
+  // Support Bot - For handling user support tickets
+  app.post("/api/telegram/webhook/support", async (req, res) => {
+    try {
+      const update = req.body;
+      console.log("Received update for Support bot:", JSON.stringify(update).substring(0, 100) + "...");
+      
+      // Process support tickets
+      // Here we would create support tickets from user messages
+      
+      res.sendStatus(200);
+    } catch (error) {
+      console.error("Error processing Support bot webhook:", error);
+      res.sendStatus(500);
+    }
+  });
+
+  // Staff Bot - For internal staff communication
+  app.post("/api/telegram/webhook/staff", async (req, res) => {
+    try {
+      const update = req.body;
+      console.log("Received update for Staff bot:", JSON.stringify(update).substring(0, 100) + "...");
+      
+      // Process staff communications
+      // Here we would handle staff commands and notifications
+      
+      res.sendStatus(200);
+    } catch (error) {
+      console.error("Error processing Staff bot webhook:", error);
+      res.sendStatus(500);
+    }
+  });
+
+  // Test Telegram Bot Integration
+  app.get("/api/telegram/test", async (req, res) => {
+    try {
+      const results = {
+        mainBot: !!telegramService.mainBotToken,
+        newsBot: !!telegramService.newsBotToken,
+        supportBot: !!telegramService.supportBotToken,
+        staffBot: !!telegramService.staffBotToken
+      };
+      
+      res.json({
+        status: "Telegram integration active",
+        botStatus: results
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Error testing Telegram integration" });
+    }
+  });
+
   // Stripe subscription routes (if Stripe is configured)
   if (stripe) {
     // Create Stripe checkout session for subscription

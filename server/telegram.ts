@@ -4,10 +4,11 @@ import { storage } from "./storage";
 // For now, we'll create a mock implementation with the core functionality
 
 export class TelegramBotService {
-  private mainBotToken: string;
-  private newsBotToken: string;
-  private supportBotToken: string;
-  private staffBotToken: string;
+  // Make tokens accessible for status checks
+  mainBotToken: string;
+  newsBotToken: string;
+  supportBotToken: string;
+  staffBotToken: string;
   
   constructor() {
     this.mainBotToken = process.env.TELEGRAM_MAIN_BOT_TOKEN || "";
