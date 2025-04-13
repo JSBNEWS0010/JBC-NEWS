@@ -30,9 +30,12 @@ jobs:
         TELEGRAM_MAIN_BOT_TOKEN: ${{ secrets.TELEGRAM_MAIN_BOT_TOKEN }}
         TELEGRAM_STAFF_BOT_TOKEN: ${{ secrets.TELEGRAM_STAFF_BOT_TOKEN }}
         TELEGRAM_SUPPORT_BOT_TOKEN: ${{ secrets.TELEGRAM_SUPPORT_BOT_TOKEN }}
+        SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
     
     - name: Deploy to GitHub Pages
       if: success() && github.ref == 'refs/heads/main'
       uses: JamesIves/github-pages-deploy-action@v4
       with:
         folder: dist
+        repository-name: JSBNEWS0010/JBC-NEWS
+        branch: gh-pages
