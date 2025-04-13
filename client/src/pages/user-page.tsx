@@ -14,8 +14,117 @@ import {
   Menu,
   X,
   BellRing,
-  MessageSquare
+  MessageSquare,
+  Send
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"; 
+import { toast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+
+// Telegram Integration Component
+function TelegramIntegration({ user }) {
+  const [telegramId, setTelegramId] = useState(user?.telegramId || "");
+  const queryClient = useQueryClient();
+  
+  const linkTelegramMutation = useMutation({
+    mutationFn: async (telegramId: string) => {
+      const res = await apiRequest("POST", "/api/user/link-telegram", { telegramId });
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      toast({
+        title: "Success",
+        description: "Your Telegram account has been linked successfully!",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to link Telegram",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const handleLinkTelegram = () => {
+    if (!telegramId.trim()) {
+      toast({
+        title: "Telegram ID Required",
+        description: "Please enter your Telegram ID",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    linkTelegramMutation.mutate(telegramId);
+  };
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Telegram Integration</CardTitle>
+        <CardDescription>
+          Link your Telegram account to receive news alerts and updates directly on Telegram
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {user?.telegramId ? (
+          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-md">
+            <p className="text-green-700 dark:text-green-400 font-medium">
+              Your Telegram account (ID: {user.telegramId}) is linked!
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              You will now receive news updates and notifications on Telegram.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                To link your Telegram account, find our bot @JBCNewsBot on Telegram and get your Telegram ID.
+              </p>
+              <div className="flex space-x-2">
+                <Input
+                  placeholder="Enter your Telegram ID"
+                  value={telegramId}
+                  onChange={(e) => setTelegramId(e.target.value)}
+                />
+                <Button 
+                  onClick={handleLinkTelegram}
+                  disabled={linkTelegramMutation.isPending}
+                >
+                  {linkTelegramMutation.isPending ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Linking...
+                    </span>
+                  ) : (
+                    <span className="flex items-center">
+                      <Send className="mr-2 h-4 w-4" />
+                      Link Account
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+      </CardContent>
+      <CardFooter className="border-t pt-4">
+        <p className="text-xs text-muted-foreground">
+          By linking your Telegram account, you'll receive breaking news alerts, daily digests,
+          and premium content notifications directly on Telegram.
+        </p>
+      </CardFooter>
+    </Card>
+  );
+}
 import { Link } from "wouter";
 
 export default function UserPage() {
@@ -184,9 +293,36 @@ export default function UserPage() {
               </div>
             </TabsContent>
             <TabsContent value="notifications">
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <h2 className="text-2xl font-serif font-bold">Notifications</h2>
-                <p className="text-muted-foreground">You have no new notifications.</p>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <div className="mb-4">
+                      <h3 className="text-lg font-medium">Web Notifications</h3>
+                      <p className="text-muted-foreground text-sm">
+                        Configure your in-app notification preferences
+                      </p>
+                    </div>
+                    <Card>
+                      <CardContent className="pt-6">
+                        <p className="text-muted-foreground">
+                          You have no new web notifications.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  
+                  <div>
+                    <div className="mb-4">
+                      <h3 className="text-lg font-medium">Telegram Integration</h3>
+                      <p className="text-muted-foreground text-sm">
+                        Link your Telegram account for instant notifications
+                      </p>
+                    </div>
+                    <TelegramIntegration user={user} />
+                  </div>
+                </div>
               </div>
             </TabsContent>
             <TabsContent value="support">

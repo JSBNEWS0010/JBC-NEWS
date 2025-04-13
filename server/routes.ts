@@ -136,7 +136,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/news/live", async (req, res) => {
     try {
       const news = await storage.getLiveNews();
-      res.json(news);
+      
+      // Check if user is premium to handle premium content
+      const isPremium = req.isAuthenticated() && (req.user as any)?.isPremium;
+      
+      // For non-premium users, filter out premium content
+      const filteredNews = isPremium 
+        ? news 
+        : news.filter(item => !item.isPremium);
+      
+      res.json(filteredNews);
     } catch (error) {
       res.status(500).json({ message: "Error fetching live news" });
     }
